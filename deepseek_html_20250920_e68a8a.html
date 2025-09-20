@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flores Galácticas con Mensajes de Amistad</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #000;
+        }
+        
+        #container {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        
+        #message {
+            position: absolute;
+            bottom: 15%;
+            width: 100%;
+            text-align: center;
+            color: #FFD700;
+            font-size: 2.8em;
+            font-weight: bold;
+            text-shadow: 0 0 15px rgba(255, 215, 0, 0.8);
+            opacity: 0;
+            transition: opacity 2s ease-in-out;
+            font-family: 'Brush Script MT', cursive;
+            z-index: 10;
+        }
+        
+        .petal-fall {
+            position: absolute;
+            color: #FFD700;
+            font-size: 24px;
+            opacity: 0;
+            z-index: 5;
+            animation: fall linear forwards;
+        }
+        
+        .star {
+            position: absolute;
+            background-color: white;
+            border-radius: 50%;
+            animation: twinkle linear infinite;
+        }
+        
+        .friendship-message {
+            position: absolute;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 1.2em;
+            font-style: italic;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 3s ease-in-out;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            width: 200px;
+            z-index: 8;
+        }
+        
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0.7;
+            }
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        .controls {
+            position: absolute;
+            bottom: 20px;
+            left: 20px;
+            z-index: 100;
+            color: white;
+            background: rgba(0, 0, 0, 0.5);
+            padding: 10px;
+            border-radius: 10px;
+            font-size: 14px;
+        }
+        
+        h1 {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            color: #FFD700;
+            font-size: 2.5em;
+            opacity: 0.9;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.7);
+            z-index: 10;
+            font-family: 'Arial', sans-serif;
+            letter-spacing: 2px;
+        }
+        
+        #ribbon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 80px;
+            height: 150px;
+            opacity: 0;
+            transform: translate(-50%, -50%);
+            transition: opacity 2s ease-in-out;
+            z-index: 9;
+            filter: drop-shadow(0 0 5px rgba(0, 0, 0, 0.7));
+        }
+        
+        .ribbon-part {
+            position: absolute;
+            background: linear-gradient(45deg, #ff0000, #ff8c00, #ff0000);
+            border-radius: 5px;
+        }
+        
+        #ribbon-knot {
+            top: 0;
+            left: 25px;
+            width: 30px;
+            height: 40px;
+            transform: perspective(10px) rotateX(10deg);
+        }
+        
+        #ribbon-loop-left {
+            top: 35px;
+            left: 0;
+            width: 25px;
+            height: 80px;
+            border-radius: 15px 5px 5px 5px;
+            transform: rotate(-10deg);
+            background: linear-gradient(45deg, #ff3333, #ff9933);
+        }
+        
+        #ribbon-loop-right {
+            top: 35px;
+            right: 0;
+            width: 25px;
+            height: 80px;
+            border-radius: 5px 15px 5px 5px;
+            transform: rotate(10deg);
+            background: linear-gradient(45deg, #ff9933, #ff3333);
+        }
+        
+        #ribbon-tail-left {
+            bottom: -70px;
+            left: 15px;
+            width: 15px;
+            height: 100px;
+            transform: rotate(-15deg);
+            border-radius: 0 0 10px 10px;
+        }
+        
+        #ribbon-tail-right {
+            bottom: -70px;
+            right: 15px;
+            width: 15px;
+            height: 100px;
+            transform: rotate(15deg);
+            border-radius: 0 0 10px 10px;
+        }
+        
+        #galaxy {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            overflow: hidden;
+        }
+        
+        .nebula {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.1;
+            filter: blur(40px);
+        }
+    </style>
+</head>
+<body>
+    <div id="galaxy"></div>
+    <h1>Ramo Galáctico de Amistad</h1>
+    <div id="container"></div>
+    <div id="message">De parte de el elimina suegra...</div>
+    
+    <div id="ribbon">
+        <div id="ribbon-knot" class="ribbon-part"></div>
+        <div id="ribbon-loop-left" class="ribbon-part"></div>
+        <div id="ribbon-loop-right" class="ribbon-part"></div>
+        <div id="ribbon-tail-left" class="ribbon-part"></div>
+        <div id="ribbon-tail-right" class="ribbon-part"></div>
+    </div>
+
+    <div class="friendship-message" style="top: 10%; left: 5%;">La amistad es el lazo que une almas con flores de amor</div>
+    <div class="friendship-message" style="top: 15%; right: 5%;">Un amigo es alguien que sabe la canción de tu corazón y puede cantarla cuando la olvides</div>
+    <div class="friendship-message" style="top: 80%; left: 10%;">La verdadera amistad resiste el tiempo, la distancia y el silencio</div>
+    <div class="friendship-message" style="top: 75%; right: 8%;">Los amigos son las flores en el jardín de la vida</div>
+    <div class="friendship-message" style="top: 45%; left: 2%;">La amistad duplica las alegrías y divide las angustias</div>
+    <div class="friendship-message" style="top: 40%; right: 2%;">Un verdadero amigo es el mejor regalo que podemos recibir</div>
+    <div class="friendship-message" style="top: 25%; left: 20%;">Donde hay amistad, hay alegría y belleza</div>
+
+    <div class="controls">
+        <p>✨ Gira con el mouse</p>
+        <p>🔍 Zoom: Rueda del mouse</p>
+    </div>
+
+    <script>
+        // Variables iniciales
+        let scene, camera, renderer, flowers = [];
+        let flowerGroup = new THREE.Group();
+        let stemsGroup = new THREE.Group();
+        let mouseX = 0, mouseY = 0;
+        let windowHalfX = window.innerWidth / 2;
+        let windowHalfY = window.innerHeight / 2;
+        
+        // Inicializar la escena
+        function init() {
+            // Crear escena
+            scene = new THREE.Scene();
+            
+            // Crear cámara
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+            
+            // Crear renderizador
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setClearColor(0x000000, 0);
+            document.getElementById('container').appendChild(renderer.domElement);
+            
+            // Añadir luces
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            directionalLight.position.set(5, 5, 5);
+            scene.add(directionalLight);
+            
+            const pointLight = new THREE.PointLight(0xFFD700, 1, 100);
+            pointLight.position.set(0, 0, 5);
+            scene.add(pointLight);
+            
+            // Añadir grupo de flores y tallos a la escena
+            scene.add(flowerGroup);
+            scene.add(stemsGroup);
+            
+            // Crear galaxia de fondo
+            createGalaxyBackground();
+            
+            // Crear estrellas 3D
+            createStars();
+            
+            // Iniciar animación
+            animate();
+            
+            // Crear flores después de un breve retraso
+            setTimeout(createFlowers, 500);
+            
+            // Ajustar en redimensionamiento de ventana
+            window.addEventListener('resize', onWindowResize);
+            
+            // Eventos de ratón para interacción
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('wheel', onMouseWheel);
+        }
+        
+        // Crear galaxia de fondo
+        function createGalaxyBackground() {
+            const galaxy = document.getElementById('galaxy');
+            
+            // Crear nebulosas
+            for (let i = 0; i < 5; i++) {
+                const nebula = document.createElement('div');
+                nebula.className = 'nebula';
+                nebula.style.width = Math.random() * 500 + 300 + 'px';
+                nebula.style.height = Math.random() * 500 + 300 + 'px';
+                nebula.style.background = `radial-gradient(circle, 
+                    hsl(${Math.random() * 60 + 240}, 100%, 70%) 0%, 
+                    hsl(${Math.random() * 60 + 270}, 100%, 50%) 50%, 
+                    transparent 100%)`;
+                nebula.style.top = Math.random() * 100 + 'vh';
+                nebula.style.left = Math.random() * 100 + 'vw';
+                nebula.style.animation = `moveNebula ${Math.random() * 50 + 50}s infinite alternate`;
+                galaxy.appendChild(nebula);
+            }
+            
+            // Crear estrellas
+            for (let i = 0; i < 200; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.width = Math.random() * 3 + 'px';
+                star.style.height = star.style.width;
+                star.style.top = Math.random() * 100 + 'vh';
+                star.style.left = Math.random() * 100 + 'vw';
+                star.style.animationDuration = Math.random() * 5 + 3 + 's';
+                star.style.animationDelay = Math.random() * 5 + 's';
+                galaxy.appendChild(star);
+            }
+        }
+        
+        // Crear estrellas 3D
+        function createStars() {
+            const starGeometry = new THREE.BufferGeometry();
+            const starMaterial = new THREE.PointsMaterial({
+                color: 0xffffff,
+                size: 0.1,
+                transparent: true
+            });
+            
+            const starVertices = [];
+            for (let i = 0; i < 10000; i++) {
+                const x = (Math.random() - 0.5) * 2000;
+                const y = (Math.random() - 0.5) * 2000;
+                const z = (Math.random() - 0.5) * 2000;
+                starVertices.push(x, y, z);
+            }
+            
+            starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+            const stars = new THREE.Points(starGeometry, starMaterial);
+            scene.add(stars);
+        }
+        
+        // Crear flores en forma de ramo
+        function createFlowers() {
+            const flowerCount = 21;
+            
+            for (let i = 0; i < flowerCount; i++) {
+                // Calcular posición en forma de ramo (más compacto)
+                const radius = 0.5 + (i % 3) * 0.3;
+                const angle = (i / flowerCount) * Math.PI * 2;
+                const height = (i % 3) * 0.5 - 0.5;
+                
+                const x = Math.cos(angle) * radius;
+                const z = Math.sin(angle) * radius;
+                const y = height;
+                
+                createFlower(x, y, z, i * 0.2);
+            }
+            
+            // Crear tallos unidos
+            createUnitedStems();
+            
+            // Mostrar mensajes y elementos después de que las flores hayan crecido
+            setTimeout(() => {
+                document.getElementById('message').style.opacity = 1;
+                document.getElementById('ribbon').style.opacity = 1;
+                
+                // Mostrar mensajes de amistad
+                const messages = document.querySelectorAll('.friendship-message');
+                messages.forEach((msg, index) => {
+                    setTimeout(() => {
+                        msg.style.opacity = 1;
+                    }, index * 500);
+                });
+                
+                createFallingPetals();
+            }, 4000);
+        }
+        
+        // Crear tallos unidos en el centro
+        function createUnitedStems() {
+            const stemMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x228B22,
+                emissive: 0x113311
+            });
+            
+            // Tallo principal central
+            const mainStemGeometry = new THREE.CylinderGeometry(0.15, 0.2, 3, 16);
+            const mainStem = new THREE.Mesh(mainStemGeometry, stemMaterial);
+            mainStem.position.y = -1.5;
+            stemsGroup.add(mainStem);
+            
+            // Tallos secundarios que se unen al central
+            for (let i = 0; i < 8; i++) {
+                const angle = (i / 8) * Math.PI * 2;
+                const radius = 0.1;
+                
+                const stemGeometry = new THREE.CylinderGeometry(0.05, 0.08, 1.5, 8);
+                const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+                
+                stem.position.y = -0.8;
+                stem.position.x = Math.cos(angle) * radius;
+                stem.position.z = Math.sin(angle) * radius;
+                
+                stem.rotation.x = Math.PI/6;
+                stem.rotation.z = angle;
+                
+                stemsGroup.add(stem);
+            }
+        }
+        
+        // Crear una flor individual
+        function createFlower(x, y, z, delay) {
+            const petalGeometry = new THREE.ConeGeometry(0.3, 0.5, 6);
+            const centerGeometry = new THREE.SphereGeometry(0.15, 16, 16);
+            const leafGeometry = new THREE.SphereGeometry(0.1, 8, 8);
+            
+            // Materiales
+            const petalMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0xFFD700,
+                shininess: 100,
+                emissive: 0x443300
+            });
+            
+            const stemMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x228B22,
+                emissive: 0x113311
+            });
+            
+            const centerMaterial = new THREE.MeshPhongMaterial({ 
+                color: 0x8B4513,
+                emissive: 0x442200
+            });
+            
+            // Crear tallo individual
+            const stemGeometry = new THREE.CylinderGeometry(0.03, 0.04, 1.2, 8);
+            const stem = new THREE.Mesh(stemGeometry, stemMaterial);
+            stem.position.y = -0.6;
+            
+            // Crear centro de la flor
+            const center = new THREE.Mesh(centerGeometry, centerMaterial);
+            center.position.y = 0.2;
+            
+            // Crear grupo para la flor completa
+            const flower = new THREE.Group();
+            
+            // Crear pétalos
+            const petalCount = 6;
+            for (let i = 0; i < petalCount; i++) {
+                const petal = new THREE.Mesh(petalGeometry, petalMaterial);
+                petal.rotation.x = Math.PI / 2;
+                petal.rotation.z = (i / petalCount) * Math.PI * 2;
+                petal.position.y = 0.2;
+                flower.add(petal);
+            }
+            
+            // Añadir hojas
+            const leaf1 = new THREE.Mesh(leafGeometry, stemMaterial);
+            leaf1.position.set(0.15, -0.3, 0);
+            leaf1.scale.set(1.2, 0.5, 0.5);
+            stem.add(leaf1);
+            
+            const leaf2 = new THREE.Mesh(leafGeometry, stemMaterial);
+            leaf2.position.set(-0.15, -0.2, 0);
+            leaf2.scale.set(1.2, 0.5, 0.5);
+            stem.add(leaf2);
+            
+            // Ensamblar la flor
+            flower.add(stem);
+            flower.add(center);
+            
+            // Posicionar la flor
+            flower.position.set(x, y - 3, z);
+            flower.userData.originalY = y;
+            flower.userData.growthSpeed = 0.8 + Math.random() * 0.4;
+            flower.userData.rotationSpeed = (Math.random() - 0.5) * 0.02;
+            
+            // Añadir a la escena
+            flowerGroup.add(flower);
+            flowers.push(flower);
+            
+            // Iniciar animación de crecimiento después del retraso
+            setTimeout(() => {
+                animateFlowerGrowth(flower);
+            }, delay * 800);
+        }
+        
+        // Animar crecimiento de la flor
+        function animateFlowerGrowth(flower) {
+            flower.userData.growing = true;
+        }
+        
+        // Eventos de ratón
+        function onMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX) * 0.0005;
+            mouseY = (event.clientY - windowHalfY) * 0.0005;
+        }
+        
+        function onMouseWheel(event) {
+            camera.position.z += event.deltaY * 0.01;
+            camera.position.z = Math.max(3, Math.min(20, camera.position.z));
+        }
+        
+        // Ajustar en redimensionamiento de ventana
+        function onWindowResize() {
+            windowHalfX = window.innerWidth / 2;
+            windowHalfY = window.innerHeight / 2;
+            
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+        
+        // Crear efecto de pétalos cayendo
+        function createFallingPetals() {
+            for (let i = 0; i < 80; i++) {
+                setTimeout(() => {
+                    const petal = document.createElement('div');
+                    petal.className = 'petal-fall';
+                    petal.innerHTML = '●';
+                    petal.style.left = Math.random() * 100 + 'vw';
+                    petal.style.animationDuration = (Math.random() * 3 + 2) + 's';
+                    document.body.appendChild(petal);
+                    
+                    // Eliminar después de la animación
+                    setTimeout(() => {
+                        if (petal.parentNode) {
+                            document.body.removeChild(petal);
+                        }
+                    }, 5000);
+                }, i * 100);
+            }
+        }
+        
+        // Bucle de animación
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Rotar todo el ramo de flores suavemente
+            flowerGroup.rotation.y += 0.003;
+            flowerGroup.rotation.x = mouseY * 2;
+            flowerGroup.rotation.y += mouseX;
+            
+            stemsGroup.rotation.y = flowerGroup.rotation.y;
+            stemsGroup.rotation.x = flowerGroup.rotation.x;
+            
+            // Animar crecimiento y movimiento individual de cada flor
+            flowers.forEach(flower => {
+                if (flower.userData.growing && flower.position.y < flower.userData.originalY) {
+                    flower.position.y += 0.03 * flower.userData.growthSpeed;
+                }
+                
+                // Rotación individual de cada flor
+                flower.rotation.y += flower.userData.rotationSpeed;
+            });
+            
+            // Mover la cámara suavemente
+            camera.position.x += (mouseX * 2 - camera.position.x) * 0.05;
+            camera.position.y += (-mouseY * 2 - camera.position.y) * 0.05;
+            camera.lookAt(scene.position);
+            
+            // Renderizar escena
+            renderer.render(scene, camera);
+        }
+        
+        // Iniciar todo
+        init();
+    </script>
+</body>
+</html>
